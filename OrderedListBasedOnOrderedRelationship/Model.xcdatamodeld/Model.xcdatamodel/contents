@@ -2,12 +2,11 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19F101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Item" representedClassName=".Item" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="root" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="above" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Item" inverseName="below" inverseEntity="Item"/>
-        <relationship name="below" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Item" inverseName="above" inverseEntity="Item"/>
+        <relationship name="below" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Item" inverseName="above" inverseEntity="Item"/>
     </entity>
     <elements>
-        <element name="Item" positionX="1815.80078125" positionY="7416.7421875" width="156.08203125" height="118"/>
+        <element name="Item" positionX="-54" positionY="-9" width="128" height="103"/>
     </elements>
 </model>
