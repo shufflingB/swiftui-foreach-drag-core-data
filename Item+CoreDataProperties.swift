@@ -2,7 +2,7 @@
 //  Item+CoreDataProperties.swift
 //  OrderedListBasedOnOrderedRelationship
 //
-//  Created by Jonathan Hume on 15/07/2020.
+//  Created by Jonathan Hume on 22/07/2020.
 //  Copyright © 2020 Jonathan Hume. All rights reserved.
 //
 //
@@ -19,77 +19,81 @@ extension Item {
 
     @NSManaged public var id: UUID?
     @NSManaged public var title: String?
-    @NSManaged public var above: NSOrderedSet?
-    @NSManaged public var below: NSOrderedSet?
+    @NSManaged public var root: Bool
+    @NSManaged public var parentsList: NSOrderedSet?
+    @NSManaged public var childrenList: NSOrderedSet?
+    
+    
+    
 
 }
 
-// MARK: Generated accessors for above
+// MARK: Generated accessors for parentsList
 extension Item {
 
-    @objc(insertObject:inAboveAtIndex:)
-    @NSManaged public func insertIntoAbove(_ value: Item, at idx: Int)
+    @objc(insertObject:inParentsListAtIndex:)
+    @NSManaged public func insertIntoParentsList(_ value: Item, at idx: Int)
 
-    @objc(removeObjectFromAboveAtIndex:)
-    @NSManaged public func removeFromAbove(at idx: Int)
+    @objc(removeObjectFromParentsListAtIndex:)
+    @NSManaged public func removeFromParentsList(at idx: Int)
 
-    @objc(insertAbove:atIndexes:)
-    @NSManaged public func insertIntoAbove(_ values: [Item], at indexes: NSIndexSet)
+    @objc(insertParentsList:atIndexes:)
+    @NSManaged public func insertIntoParentsList(_ values: [Item], at indexes: NSIndexSet)
 
-    @objc(removeAboveAtIndexes:)
-    @NSManaged public func removeFromAbove(at indexes: NSIndexSet)
+    @objc(removeParentsListAtIndexes:)
+    @NSManaged public func removeFromParentsList(at indexes: NSIndexSet)
 
-    @objc(replaceObjectInAboveAtIndex:withObject:)
-    @NSManaged public func replaceAbove(at idx: Int, with value: Item)
+    @objc(replaceObjectInParentsListAtIndex:withObject:)
+    @NSManaged public func replaceParentsList(at idx: Int, with value: Item)
 
-    @objc(replaceAboveAtIndexes:withAbove:)
-    @NSManaged public func replaceAbove(at indexes: NSIndexSet, with values: [Item])
+    @objc(replaceParentsListAtIndexes:withParentsList:)
+    @NSManaged public func replaceParentsList(at indexes: NSIndexSet, with values: [Item])
 
-    @objc(addAboveObject:)
-    @NSManaged public func addToAbove(_ value: Item)
+    @objc(addParentsListObject:)
+    @NSManaged public func addToParentsList(_ value: Item)
 
-    @objc(removeAboveObject:)
-    @NSManaged public func removeFromAbove(_ value: Item)
+    @objc(removeParentsListObject:)
+    @NSManaged public func removeFromParentsList(_ value: Item)
 
-    @objc(addAbove:)
-    @NSManaged public func addToAbove(_ values: NSOrderedSet)
+    @objc(addParentsList:)
+    @NSManaged public func addToParentsList(_ values: NSOrderedSet)
 
-    @objc(removeAbove:)
-    @NSManaged public func removeFromAbove(_ values: NSOrderedSet)
+    @objc(removeParentsList:)
+    @NSManaged public func removeFromParentsList(_ values: NSOrderedSet)
 
 }
 
-// MARK: Generated accessors for below
+// MARK: Generated accessors for childrenList
 extension Item {
 
-    @objc(insertObject:inBelowAtIndex:)
-    @NSManaged public func insertIntoBelow(_ value: Item, at idx: Int)
+    @objc(insertObject:inChildrenListAtIndex:)
+    @NSManaged public func insertIntoChildrenList(_ value: Item, at idx: Int)
 
-    @objc(removeObjectFromBelowAtIndex:)
-    @NSManaged public func removeFromBelow(at idx: Int)
+    @objc(removeObjectFromChildrenListAtIndex:)
+    @NSManaged public func removeFromChildrenList(at idx: Int)
 
-    @objc(insertBelow:atIndexes:)
-    @NSManaged public func insertIntoBelow(_ values: [Item], at indexes: NSIndexSet)
+    @objc(insertChildrenList:atIndexes:)
+    @NSManaged public func insertIntoChildrenList(_ values: [Item], at indexes: NSIndexSet)
 
-    @objc(removeBelowAtIndexes:)
-    @NSManaged public func removeFromBelow(at indexes: NSIndexSet)
+    @objc(removeChildrenListAtIndexes:)
+    @NSManaged public func removeFromChildrenList(at indexes: NSIndexSet)
 
-    @objc(replaceObjectInBelowAtIndex:withObject:)
-    @NSManaged public func replaceBelow(at idx: Int, with value: Item)
+    @objc(replaceObjectInChildrenListAtIndex:withObject:)
+    @NSManaged public func replaceChildrenList(at idx: Int, with value: Item)
 
-    @objc(replaceBelowAtIndexes:withBelow:)
-    @NSManaged public func replaceBelow(at indexes: NSIndexSet, with values: [Item])
+    @objc(replaceChildrenListAtIndexes:withChildrenList:)
+    @NSManaged public func replaceChildrenList(at indexes: NSIndexSet, with values: [Item])
 
-    @objc(addBelowObject:)
-    @NSManaged public func addToBelow(_ value: Item)
+    @objc(addChildrenListObject:)
+    @NSManaged public func addToChildrenList(_ value: Item)
 
-    @objc(removeBelowObject:)
-    @NSManaged public func removeFromBelow(_ value: Item)
+    @objc(removeChildrenListObject:)
+    @NSManaged public func removeFromChildrenList(_ value: Item)
 
-    @objc(addBelow:)
-    @NSManaged public func addToBelow(_ values: NSOrderedSet)
+    @objc(addChildrenList:)
+    @NSManaged public func addToChildrenList(_ values: NSOrderedSet)
 
-    @objc(removeBelow:)
-    @NSManaged public func removeFromBelow(_ values: NSOrderedSet)
+    @objc(removeChildrenList:)
+    @NSManaged public func removeFromChildrenList(_ values: NSOrderedSet)
 
 }

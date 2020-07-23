@@ -13,9 +13,9 @@
 		FF10D27324BC908600D318AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF10D27224BC908600D318AD /* Assets.xcassets */; };
 		FF10D27624BC908600D318AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF10D27524BC908600D318AD /* Preview Assets.xcassets */; };
 		FF10D27924BC908700D318AD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF10D27724BC908700D318AD /* LaunchScreen.storyboard */; };
+		FF86D16224C88AB600B253FC /* Item+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF86D16024C88AB600B253FC /* Item+CoreDataClass.swift */; };
+		FF86D16324C88AB600B253FC /* Item+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF86D16124C88AB600B253FC /* Item+CoreDataProperties.swift */; };
 		FFC8AFD424BF27E10048DB25 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FFC8AFD224BF27E10048DB25 /* Model.xcdatamodeld */; };
-		FFC8AFDB24BF38AD0048DB25 /* Item+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC8AFD924BF38AD0048DB25 /* Item+CoreDataClass.swift */; };
-		FFC8AFDC24BF38AD0048DB25 /* Item+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC8AFDA24BF38AD0048DB25 /* Item+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,9 +27,9 @@
 		FF10D27524BC908600D318AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		FF10D27824BC908700D318AD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FF10D27A24BC908700D318AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FF86D16024C88AB600B253FC /* Item+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		FF86D16124C88AB600B253FC /* Item+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		FFC8AFD324BF27E10048DB25 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		FFC8AFD924BF38AD0048DB25 /* Item+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		FFC8AFDA24BF38AD0048DB25 /* Item+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,8 +62,8 @@
 		FF10D26824BC908400D318AD /* OrderedListBasedOnOrderedRelationship */ = {
 			isa = PBXGroup;
 			children = (
-				FFC8AFD924BF38AD0048DB25 /* Item+CoreDataClass.swift */,
-				FFC8AFDA24BF38AD0048DB25 /* Item+CoreDataProperties.swift */,
+				FF86D16024C88AB600B253FC /* Item+CoreDataClass.swift */,
+				FF86D16124C88AB600B253FC /* Item+CoreDataProperties.swift */,
 				FF10D26924BC908500D318AD /* AppDelegate.swift */,
 				FF10D26B24BC908500D318AD /* SceneDelegate.swift */,
 				FF10D27024BC908500D318AD /* ContentView.swift */,
@@ -155,8 +155,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FFC8AFDC24BF38AD0048DB25 /* Item+CoreDataProperties.swift in Sources */,
-				FFC8AFDB24BF38AD0048DB25 /* Item+CoreDataClass.swift in Sources */,
+				FF86D16324C88AB600B253FC /* Item+CoreDataProperties.swift in Sources */,
+				FF86D16224C88AB600B253FC /* Item+CoreDataClass.swift in Sources */,
 				FF10D26A24BC908500D318AD /* AppDelegate.swift in Sources */,
 				FF10D27124BC908500D318AD /* ContentView.swift in Sources */,
 				FF10D26C24BC908500D318AD /* SceneDelegate.swift in Sources */,

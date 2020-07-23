@@ -9,133 +9,212 @@
 
 import SwiftUI
 import CoreData
+import os.log
 
 struct ContentView: View {
+    
     @Environment(\.managedObjectContext) var moc
+    @FetchRequest(sortDescriptors: [], predicate: Item.rootItemPredicate ) var possibleRootItems: FetchedResults<Item>
+    @FetchRequest(sortDescriptors: [] ) var allItems: FetchedResults<Item>
     
-    
-    //    @FetchRequest(entity: Item.entity(), sortDescriptors: []) var rootItems: FetchedResults<Item>
-    
-    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "above.@count == 0")
-    ) var itemsWithNothingAbove: FetchedResults<Item>
-    
-    
-    var itemRoot: Item? {
-        guard itemsWithNothingAbove.isEmpty == false else {
-            return nil
-        }
-        return itemsWithNothingAbove[0]
+
+    var rootItem: Item? {
         
+        switch possibleRootItems.count {
+            case 1 :
+//                os_log("Using existing root item", type: .debug)
+                return possibleRootItems[0]
+            case ...0, nil:
+                os_log("No root Items detected", type: .debug)
+                return nil
+            default:
+                os_log("Unexpected number of Root Items found (%d) in CoreData store. Using the first one but should only be one", type: .fault, possibleRootItems.count)
+                return possibleRootItems[0]
+        }
     }
     
     
-    
-    func setupCoreData () {
-        
-        if itemsWithNothingAbove.count == 0 {
+    func onAppearRootItemCreateIfNecessary () {
+        // Setup the Core Data structure.
+        // NB: This cannot be done implicitly via the derived rootItem property as that triggers the rootItem derived state variable
+        // to change value during rendering which is bad bad karma (tm)
+        if possibleRootItems.count == 0 {
+            os_log("Creating new Root Item", type: .debug)
+            // Instantiate a root item
             let rootItem = Item(context: moc)
+            rootItem.id = UUID()
             rootItem.title = "ROOT ITEM"
+            rootItem.root = true
             saveChanges()
         }
     }
     
-//    init() {
-//        setupCoreData()
-//    }
+    func createNewItemBelowRoot() {
+        guard let safeRootItem = rootItem else {
+            os_log("Failed attempt to create a new child Item for an undefined Root", type: .fault)
+            return
+        }
+        os_log("Creating new Item below Root", type: .debug)
+        createNewItem(childOf: safeRootItem)
+    }
     
+    func createNewItem(childOf parentItem: Item) {
+        let childItem = Item(context: moc)
+        childItem.id = UUID()
+        childItem.title = "Item number \(Date())"
+        parentItem.addToChildrenList(childItem)
+    }
     
-    //    @FetchRequest(entity: Item.entity(), sortDescriptors: [NSSortDescriptor(key: sortKey , ascending: true)]) var items: FetchedResults<Item>
-    
-    //    static let sortKey = "order"
-    //    @FetchRequest(entity: Item.entity(), sortDescriptors: [NSSortDescriptor(key: sortKey , ascending: true)]) var items: FetchedResults<Item>
-    
-    func createNewItem() {
+    func deleteChildItems(_ indices: IndexSet) {
+
+        guard let safeRootItem = rootItem else {
+            os_log("Failed attempt to delete child Items from an undefined Root", type: .fault)
+            return
+        }
         
-//        let newItem = Item(context: moc)
-//
-//        newItem.title = "Item number \(Date())"
-//        itemRoot.addToBelow(newItem)
-//
-//        saveChanges()
+        guard let safechildren  = safeRootItem.childrenList else {
+            os_log("Failed attempt to delete child Items from a Root that has no children", type: .fault)
+            return
+        }
+        
+        os_log("Removing %d items ", type: .debug, indices.count)
+        let setToRemove: NSOrderedSet = NSOrderedSet(array: safechildren.objects(at: indices))
+        _ = setToRemove.map({item in moc.delete(item as! NSManagedObject)})
     }
     
-    func deleteItems(_ indices: IndexSet) {
-//        itemRoot.removeFromBelow(at: indices as NSIndexSet)
-//        saveChanges()
+    
+    
+    func rearrangeChildItemsWorking(srcIndices: IndexSet, tgtArraySpecOffsetIdx: Int) {
+        
+        guard let firstMovedIdx = srcIndices.first  else {
+            os_log("Failed attempt to rearrange child Items received empty set of indices to move", type: .fault)
+            return
+        }
+
+        guard firstMovedIdx != tgtArraySpecOffsetIdx else {
+            // os_log("Not rearranging children as source and tgt idx the same", type: .debug)
+            return
+        }
+        
+        guard let safeRootItem = rootItem else {
+            os_log("Failed attempt to rearrange child Items for an undefined Root", type: .fault)
+            return
+        }
+
+        guard let safeChildrenList = safeRootItem.childrenList  else {
+            os_log("Failed attempt to rearrange child Items, Root has no children", type: .fault)
+            return
+        }
+        
+        /*
+         Convert tgt offsetIdx from one intended for use with Arrays to one suitable for MutableOrderedSets.
+         
+         Foreach calls with an offset optimised for Swift 5.X standard libarary Array's move(?) method
+         takes as an input. Namely we get an offset to whence objects are to be moved to that is slightly tricksy in that
+         it is specified as being as if the original elements are not removed first before copy, i.e.conceptually
+         the tgt output is formed by 1) Clone moved elements to new location. 2) Remove the elements that have been cloned.
+         
+         When dragging up this makes no difference as the original elements are below and have no bearing on tgt offset idx.
+         However, when dragging down the tgt idx received from ForEach will be the "end location idx + num elements left behind".
+         e.g. for a = ['a', 'b', 'c'] moving 'a' to after 'c''s location would us an IndexSet that contained 0 and a offset idx of 3
+         
+         Now, when us the NSMutableArrayOrdered moveObjects method, this expects the tgt offset idx to just be specified
+         as is required in the final output, i.e. conceptually it's formed by 1) Delete original elements. 2) Insert them at
+         the new location.
+         
+         Therefore we need convert the Array move offset into one suitable MutableOrderedSets by removing 'extra' offset
+         when the rows are dragged down.
+        */
+        
+        
+        let draggedUp = firstMovedIdx > tgtArraySpecOffsetIdx ? true : false
+        let tgtMutableOrderedSetOffsetIdx = draggedUp ? tgtArraySpecOffsetIdx : tgtArraySpecOffsetIdx - srcIndices.count
+        
+        
+        /* The dang relationships should a mutable NSMutableOrderedSet according to Apple docs but they are
+         not they are just NSOrderedSet. So a workaround we have to create a mutable copy, update it and then blat the
+         original.
+         */
+        let updatedList: NSMutableOrderedSet = NSMutableOrderedSet(orderedSet: safeChildrenList)
+        
+        updatedList.moveObjects(at: srcIndices, to: tgtMutableOrderedSetOffsetIdx)
+        
+        safeRootItem.childrenList = updatedList
     }
+
+    
+    
+//        // This doesn't work because the codegen only provides NSOrderedSet and not NSMutableOrderedSet. Which
+//        // which means that at runtime it appears to work, but then silently fails to update the Core Data backend :-(
+//        func rearrangeChildItemsAppleBug(movedItemIndices: IndexSet, offsetIdx: Int) {
+//            guard let safeRootItem = rootItem else {
+//                os_log("Failed attempt to rearrange child Items for an undefined Root", type: .fault)
+//                return
+//            }
+//            guard let firstMovedIdx = movedItemIndices.first  else {
+//                os_log("Failed attempt to rearrange child Items received empty set of indices to move", type: .fault)
+//                return
+//            }
+//            guard let safeChildrenList = safeRootItem.childrenList  else {
+//                os_log("Failed attempt to rearrange child Items, Root has no children", type: .fault)
+//                return
+//            }
+//
+//
+//
+//            let draggedUp = firstMovedIdx > offsetIdx ? true : false
+//            let finalDestIdx = draggedUp ? offsetIdx : offsetIdx - 1
+//
+//
+//            print("First mv idx = \(firstMovedIdx), input tgt idx = \(offsetIdx), Dragged up = \(draggedUp), finalDestIdx = \(finalDestIdx)")
+//            (safeChildrenList as! NSMutableOrderedSet).moveObjects(at: movedItemIndices, to: finalDestIdx)
+//
+//    //        rootItem!.childrenList!.moveObjects(at: movedItemIndices, to: finalDestIdx)
+//        }
+
+    
     
     
     
     func saveChanges() {
         do {
             if self.moc.hasChanges {
-                try self.moc.save()
+                try self.moc.save()≤
+                os_log("Saved Core Data changes", type: .debug)
             }
         } catch {
-            NSLog(error.localizedDescription)
+            os_log("%s", type: .fault, error.localizedDescription)
         }
     }
     
-    
-    
-    
-    func moveItems(movedItemIndices: IndexSet, tgtIdxOffset: Int) {
-        
-        //
-        //        guard movedItemIndices.count == 1 else {
-        //            NSLog("can move one Item, asked to move \(movedItemIndices.count)")
-        //            return
-        //        }
-        //
-        //        let movedItemIdx = movedItemIndices.first
-        //        let lastValidIdx = items.endIndex - 1  // Oddly, array.endIndex is actually the +1 on from the last valid one :/
-        //
-        //        // When dragging to the top of the list we get tgt index of 0, in which case we will deal with by setting
-        //        // -1 on whatever the order value is currently at the top.
-        //        let itemAboveOrder = tgtIdxOffset == 0
-        //            ? items[tgtIdxOffset].order - 1.0 : items[tgtIdxOffset-1].order
-        //
-        //        // When dragging to the end of the list we get tgt index of last value +1, in which case we will deal with by setting
-        //        // + whatever the order value currently is at the bottom
-        //        let itemBelowOrder = tgtIdxOffset == lastValidIdx + 1
-        //            ? items[lastValidIdx].order + 1.0 : items[tgtIdxOffset].order
-        //
-        //
-        //        let newItemOrder = itemAboveOrder + (itemBelowOrder - itemAboveOrder) / 2.0
-        //        //        print("movedItemIdx \(movedItemIdx ?? -99999), tgtIdxOffset \(tgtIdxOffset), lastValidIdx \(lastValidIdx), itemBelowOrder, \(itemBelowOrder), itemAboveOrder \(itemAboveOrder), newItemOrder \(newItemOrder)")
-        //
-        //        items[movedItemIdx!].order = newItemOrder
-        
-        
-    }
-    
-    
-    
-    
-    
+
     
     var body: some View {
         
         
         NavigationView {
             VStack {
-                Text("Number of root items = \(itemsWithNothingAbove.count)")
-                
-                
-                itemRoot == nil ? AnyView(Text("No items")) :
-                    
-                    AnyView(List {
-                        
-                        ForEach(itemRoot!.below!.array as! [Item], id: \.self) { item in
-                            Text("Title \(item.title ?? "No title")")
+                Text("Root items = \(possibleRootItems.count), All Items = \(allItems.count)")
+                rootItem == nil ? AnyView(Text("App oopsy, no root Item defined"))
+                    : AnyView(
+                        List {
+                            
+                            
+                            ForEach(rootItem!.childrenList!.array as! [Item], id: \.self) { item in
+                                Text("Item UUID = \(String(item.id?.uuidString.suffix(8) ?? "No id defined"))")
+                                
+                            }
+                            .onDelete(perform: deleteChildItems)
+                            .onMove(perform: rearrangeChildItemsWorking)
+                            
                         }
-                        .onDelete(perform: deleteItems)
-                        .onMove(perform: moveItems)
-                    }
                         .id(UUID()) // <-- This stops causes SwiftUI to load the whole lot afresh rather than messing around trying to update things and flicke.
-                        )
+                        
+                )
                 
-                Button(action: createNewItem) {
+                
+                
+                Button(action: createNewItemBelowRoot) {
                     Text("Add an item")
                         .padding()
                 }
@@ -148,10 +227,14 @@ struct ContentView: View {
                 
             }
             .navigationBarItems(leading: EditButton())
-            .onAppear(perform: setupCoreData)
+            .onAppear(perform: onAppearRootItemCreateIfNecessary)
         }
         
     }
+    
+
+    
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
