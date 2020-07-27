@@ -17,12 +17,12 @@ struct ContentView: View {
     @FetchRequest(sortDescriptors: [], predicate: Item.rootItemPredicate ) var possibleRootItems: FetchedResults<Item>
     @FetchRequest(sortDescriptors: [] ) var allItems: FetchedResults<Item>
     
-
+    
     var rootItem: Item? {
         
         switch possibleRootItems.count {
             case 1 :
-//                os_log("Using existing root item", type: .debug)
+                //                os_log("Using existing root item", type: .debug)
                 return possibleRootItems[0]
             case ...0, nil:
                 os_log("No root Items detected", type: .debug)
@@ -66,7 +66,7 @@ struct ContentView: View {
     }
     
     func deleteChildItems(_ indices: IndexSet) {
-
+        
         guard let safeRootItem = rootItem else {
             os_log("Failed attempt to delete child Items from an undefined Root", type: .fault)
             return
@@ -90,7 +90,7 @@ struct ContentView: View {
             os_log("Failed attempt to rearrange child Items received empty set of indices to move", type: .fault)
             return
         }
-
+        
         guard firstMovedIdx != tgtArraySpecOffsetIdx else {
             // os_log("Not rearranging children as source and tgt idx the same", type: .debug)
             return
@@ -100,7 +100,7 @@ struct ContentView: View {
             os_log("Failed attempt to rearrange child Items for an undefined Root", type: .fault)
             return
         }
-
+        
         guard let safeChildrenList = safeRootItem.childrenList  else {
             os_log("Failed attempt to rearrange child Items, Root has no children", type: .fault)
             return
@@ -109,31 +109,37 @@ struct ContentView: View {
         /*
          Convert tgt offsetIdx from one intended for use with Arrays to one suitable for MutableOrderedSets.
          
-         Foreach calls with an offset optimised for Swift 5.X standard libarary Array's move(?) method
-         takes as an input. Namely we get an offset to whence objects are to be moved to that is slightly tricksy in that
-         it is specified as being as if the original elements are not removed first before copy, i.e.conceptually
-         the tgt output is formed by 1) Clone moved elements to new location. 2) Remove the elements that have been cloned.
+         Why?
+         ===
+         Foreach's onMove calls with an offset which I believe has been optimised for use with what Swift 5.X
+         standard library Array's move method takes as input. Namely we get an offset to whence objects are to be
+         moved to that is slightly tricksy in that it is specified as being as if the original elements are
+         not removed first before copy, i.e.conceptually the tgt output is formed by 1) Clone moved elements
+         to new location. 2) Remove the elements that have been cloned.
          
-         When dragging up this makes no difference as the original elements are below and have no bearing on tgt offset idx.
-         However, when dragging down the tgt idx received from ForEach will be the "end location idx + num elements left behind".
-         e.g. for a = ['a', 'b', 'c'] moving 'a' to after 'c''s location would us an IndexSet that contained 0 and a offset idx of 3
+         This optimisations means that when dragging up to a lower index this makes no difference -  as the original
+         elements are below. However, when dragging down the tgt idx received from ForEach will be the
+         "end location idx + num the elements left behind on the copy/move". e.g. for the array ['a', 'b', 'c']
+         moving 'a' to after 'c''s location would us an IndexSet that contained 0 and a offset idx of 3 (and not 2)
          
-         Now, when us the NSMutableArrayOrdered moveObjects method, this expects the tgt offset idx to just be specified
-         as is required in the final output, i.e. conceptually it's formed by 1) Delete original elements. 2) Insert them at
-         the new location.
+         Now, when the NSMutableArrayOrdered moveObjects method is used here for the move, this expects the tgt offset
+         idx to just be specified as is required in the final output, i.e. conceptually it's formed by 1) Remove the
+         original elements. 2) Re-insert them at the new location.
          
-         Therefore we need convert the Array move offset into one suitable MutableOrderedSets by removing 'extra' offset
+         Therefore we need convert the Array move offset into one suitable MutableOrderedSets by removing the 'extra' offset
          when the rows are dragged down.
-        */
+         */
         
         
         let draggedUp = firstMovedIdx > tgtArraySpecOffsetIdx ? true : false
         let tgtMutableOrderedSetOffsetIdx = draggedUp ? tgtArraySpecOffsetIdx : tgtArraySpecOffsetIdx - srcIndices.count
         
         
-        /* The dang relationships should a mutable NSMutableOrderedSet according to Apple docs but they are
-         not they are just NSOrderedSet. So a workaround we have to create a mutable copy, update it and then blat the
-         original.
+        /* The dang child and parent relationships should a mutable NSMutableOrderedSet according to official docs
+         but they are not (the Editor> Create NSManagedObject codegen only creates an NSOrderedSet for them). So as a
+         workaround we have to create a mutable copy, update it and then blat the original.
+         
+         Example of how it should look in `rearrangeChildItemsCodegenBreaks`
          */
         let updatedList: NSMutableOrderedSet = NSMutableOrderedSet(orderedSet: safeChildrenList)
         
@@ -141,37 +147,38 @@ struct ContentView: View {
         
         safeRootItem.childrenList = updatedList
     }
-
     
     
-//        // This doesn't work because the codegen only provides NSOrderedSet and not NSMutableOrderedSet. Which
-//        // which means that at runtime it appears to work, but then silently fails to update the Core Data backend :-(
-//        func rearrangeChildItemsAppleBug(movedItemIndices: IndexSet, offsetIdx: Int) {
-//            guard let safeRootItem = rootItem else {
-//                os_log("Failed attempt to rearrange child Items for an undefined Root", type: .fault)
-//                return
-//            }
-//            guard let firstMovedIdx = movedItemIndices.first  else {
-//                os_log("Failed attempt to rearrange child Items received empty set of indices to move", type: .fault)
-//                return
-//            }
-//            guard let safeChildrenList = safeRootItem.childrenList  else {
-//                os_log("Failed attempt to rearrange child Items, Root has no children", type: .fault)
-//                return
-//            }
-//
-//
-//
-//            let draggedUp = firstMovedIdx > offsetIdx ? true : false
-//            let finalDestIdx = draggedUp ? offsetIdx : offsetIdx - 1
-//
-//
-//            print("First mv idx = \(firstMovedIdx), input tgt idx = \(offsetIdx), Dragged up = \(draggedUp), finalDestIdx = \(finalDestIdx)")
-//            (safeChildrenList as! NSMutableOrderedSet).moveObjects(at: movedItemIndices, to: finalDestIdx)
-//
-//    //        rootItem!.childrenList!.moveObjects(at: movedItemIndices, to: finalDestIdx)
-//        }
-
+    /*
+    // This doesn't work because the codegen only provides NSOrderedSet and not NSMutableOrderedSet. Which
+    // which means that at runtime it appears to work, but then silently fails to update the Core Data backend :-(
+    
+    func rearrangeChildItemsCodegenBreaks(movedItemIndices: IndexSet, offsetIdx: Int) {
+        guard let safeRootItem = rootItem else {
+            os_log("Failed attempt to rearrange child Items for an undefined Root", type: .fault)
+            return
+        }
+        guard let firstMovedIdx = movedItemIndices.first  else {
+            os_log("Failed attempt to rearrange child Items received empty set of indices to move", type: .fault)
+            return
+        }
+        guard let safeChildrenList = safeRootItem.childrenList  else {
+            os_log("Failed attempt to rearrange child Items, Root has no children", type: .fault)
+            return
+        }
+        
+        
+        
+        let draggedUp = firstMovedIdx > offsetIdx ? true : false
+        let finalDestIdx = draggedUp ? offsetIdx : offsetIdx - 1
+        
+        
+        print("First mv idx = \(firstMovedIdx), input tgt idx = \(offsetIdx), Dragged up = \(draggedUp), finalDestIdx = \(finalDestIdx)")
+     
+        (safeChildrenList as! NSMutableOrderedSet).moveObjects(at: movedItemIndices, to: finalDestIdx) // <= NB: Silently fails
+                
+    }
+    */
     
     
     
@@ -179,7 +186,7 @@ struct ContentView: View {
     func saveChanges() {
         do {
             if self.moc.hasChanges {
-                try self.moc.save()≤
+                try self.moc.save()
                 os_log("Saved Core Data changes", type: .debug)
             }
         } catch {
@@ -187,7 +194,7 @@ struct ContentView: View {
         }
     }
     
-
+    
     
     var body: some View {
         
@@ -208,7 +215,8 @@ struct ContentView: View {
                             .onMove(perform: rearrangeChildItemsWorking)
                             
                         }
-                        .id(UUID()) // <-- This stops causes SwiftUI to load the whole lot afresh rather than messing around trying to update things and flicke.
+                            .id(UUID()) // <-- This causes SwiftUI to load the whole lot afresh rather than messing around
+                        // trying to update things individually and flickers whilst it does  that.
                         
                 )
                 
@@ -232,7 +240,7 @@ struct ContentView: View {
         
     }
     
-
+    
     
     
 }
