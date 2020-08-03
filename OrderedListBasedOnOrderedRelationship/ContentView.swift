@@ -189,8 +189,6 @@ struct ContentView: View {
                             .onDelete(perform: deleteChildItems)
                             .onMove(perform: rearrangeChildItemsWorking)
                         }
-                        .id(UUID()) // <-- This causes SwiftUI to load the whole lot afresh rather than messing around
-                        // trying to update things individually and flickers whilst it does  that.
                     )
 
                 Button(action: createNewItemBelowRoot) {
