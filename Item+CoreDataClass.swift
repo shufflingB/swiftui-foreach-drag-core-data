@@ -7,12 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
-
+import Foundation
 
 public class Item: NSManagedObject {
     //  How to find the Root Item for everything else.
     static let rootItemPredicate = NSPredicate(format: "root == YES")
-    
 }

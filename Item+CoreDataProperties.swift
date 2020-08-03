@@ -7,12 +7,10 @@
 //
 //
 
-import Foundation
 import CoreData
-
+import Foundation
 
 extension Item {
-
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Item> {
         return NSFetchRequest<Item>(entityName: "Item")
     }
@@ -22,15 +20,11 @@ extension Item {
     @NSManaged public var root: Bool
     @NSManaged public var parentsList: NSOrderedSet?
     @NSManaged public var childrenList: NSOrderedSet?
-    
-    
-    
-
 }
 
 // MARK: Generated accessors for parentsList
-extension Item {
 
+extension Item {
     @objc(insertObject:inParentsListAtIndex:)
     @NSManaged public func insertIntoParentsList(_ value: Item, at idx: Int)
 
@@ -60,12 +54,11 @@ extension Item {
 
     @objc(removeParentsList:)
     @NSManaged public func removeFromParentsList(_ values: NSOrderedSet)
-
 }
 
 // MARK: Generated accessors for childrenList
-extension Item {
 
+extension Item {
     @objc(insertObject:inChildrenListAtIndex:)
     @NSManaged public func insertIntoChildrenList(_ value: Item, at idx: Int)
 
@@ -95,5 +88,4 @@ extension Item {
 
     @objc(removeChildrenList:)
     @NSManaged public func removeFromChildrenList(_ values: NSOrderedSet)
-
 }
