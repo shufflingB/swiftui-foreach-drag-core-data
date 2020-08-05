@@ -15,6 +15,7 @@
 		FF10D27924BC908700D318AD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF10D27724BC908700D318AD /* LaunchScreen.storyboard */; };
 		FF86D16224C88AB600B253FC /* Item+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF86D16024C88AB600B253FC /* Item+CoreDataClass.swift */; };
 		FF86D16324C88AB600B253FC /* Item+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF86D16124C88AB600B253FC /* Item+CoreDataProperties.swift */; };
+		FFB1EFA324DAA9AA00339570 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FFB1EFA224DAA9AA00339570 /* LICENSE */; };
 		FFC8AFD424BF27E10048DB25 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FFC8AFD224BF27E10048DB25 /* Model.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,8 @@
 		FF10D27A24BC908700D318AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF86D16024C88AB600B253FC /* Item+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		FF86D16124C88AB600B253FC /* Item+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Item+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
+		FFB1EFA124DAA99200339570 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		FFB1EFA224DAA9AA00339570 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		FFC8AFD324BF27E10048DB25 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -46,6 +49,8 @@
 		FF10D25D24BC908400D318AD = {
 			isa = PBXGroup;
 			children = (
+				FFB1EFA124DAA99200339570 /* README.md */,
+				FFB1EFA224DAA9AA00339570 /* LICENSE */,
 				FF10D26824BC908400D318AD /* OrderedListBasedOnOrderedRelationship */,
 				FF10D26724BC908400D318AD /* Products */,
 			);
@@ -144,6 +149,7 @@
 			files = (
 				FF10D27924BC908700D318AD /* LaunchScreen.storyboard in Resources */,
 				FF10D27624BC908600D318AD /* Preview Assets.xcassets in Resources */,
+				FFB1EFA324DAA9AA00339570 /* LICENSE in Resources */,
 				FF10D27324BC908600D318AD /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
