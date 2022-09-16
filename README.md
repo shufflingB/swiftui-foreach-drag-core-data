@@ -4,6 +4,10 @@ This is an iOS SwiftUI app that demonstrates the ForEach component being used wi
 
 Why this rather than directly storing the order as a "priority" attribute on the entity? Storing as part of the relationship is more flexible; it allows ordering as part of many lists without requiring additional Entity "priority" attributes to be added for each list. 
 
+**NB: Do not adopt this approach if intending to use CloudKit.** 
+
+**CloudKit does not support the use of OrderedSets, see [here](https://stackoverflow.com/questions/69787646/core-data-storing-ordered-values-in-a-one-to-many-relationship) and [here](https://stackoverflow.com/questions/56967051/how-to-set-an-ordered-relationship-with-nspersistentcloudkitcontainer) for more on that**
+
 ## Installation
 
 Works for me (tm) with Xcode 11.6 and iOS 13.5
